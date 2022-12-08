@@ -3,30 +3,34 @@ import sys
 import json
 
 import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
 import pandas as pd
 
 
-def get_latest_stock_zjc_disclosure(config_excel:str):
+
+
+def get_latest_stock_zjc_disclosure(headers, config_excel:str):
     df = pd.read_excel(config_excel,sheet_name='stocks',dtype=str)
     print('df:\n', df)
     
     for stock in df.itertuples():
         stock_code = stock[2]
         # print('stock code:',stock_code[2])
-        disclousure_url = 'http://www.cninfo.com.cn/new/disclosure/stock?stockCode=%s&orgId=9900023680#shareholdersIncreaseOrDecrease'%(stock_code)
-        print(disclousure_url)
-        
-        # chrome_options = Options()
-        # chrome_options.add_argument("--headless")
-        # driver = webdriver.Chrome(executable_path=(r'C:\Program Files\Google\Chrome\Application\chromedriver.exe'), options=chrome_options)
-        # driver.get(disclousure_url)
-        # print(driver.page_source)
 
-        # data = requests.get(url=disclousure_url)
-        # print('data:\n',data.text)
+        url_head = 'http://www.cninfo.com.cn/data20/tradeInformation/getExecutivesIncDecDetail?scode='
+        res = requests.get(url_head+stock_code, headers)
+        text = res.text
+        # print(text)
+        new_text = json.loads(text)
+        # jsonText = json.dumps(text)
+        # print(new_text['data']['records'])
+        for record in new_text['data']['records']:
+            stock_name = record['SECNAME']
+            trade_date = record['DECLAREDATE']
+            market_volume = record['F006N']
+            market_price = record['F008N']
+
+            market_value = int(market_price*market_volume)
+            print('stock: {}, date: {} value: {} W'.format(stock_name, trade_date, market_value/10000))
 
 
 def getSP500list(p):
@@ -54,5 +58,11 @@ def getSP500list(p):
 # getSP500list(1)
 
 if __name__=="__main__":
-    config_path = '.\\config\\objects.xlsx'
-    get_latest_stock_zjc_disclosure(config_path)
+    headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                  'AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/67.0.3396.79 Safari/537.36'
+    }
+    config_path = './config/objects.xlsx'
+    # config_path = '/Users/tsang/Desktop/stock_monitor/config/objects.xlsx'
+    get_latest_stock_zjc_disclosure(headers ,config_path)
