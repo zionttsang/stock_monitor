@@ -1,7 +1,7 @@
-import csv
-import sys
-import json
 
+import json
+import time
+import datetime
 import requests
 import pandas as pd
 
@@ -18,11 +18,10 @@ def get_latest_stock_zjc_disclosure(headers, config_excel:str):
 
         url_head = 'http://www.cninfo.com.cn/data20/tradeInformation/getExecutivesIncDecDetail?scode='
         res = requests.get(url_head+stock_code, headers)
+        time.sleep(1)
         text = res.text
         # print(text)
         new_text = json.loads(text)
-        # jsonText = json.dumps(text)
-        # print(new_text['data']['records'])
         for record in new_text['data']['records']:
             stock_name = record['SECNAME']
             trade_date = record['DECLAREDATE']
@@ -30,7 +29,14 @@ def get_latest_stock_zjc_disclosure(headers, config_excel:str):
             market_price = record['F008N']
 
             market_value = int(market_price*market_volume)
-            print('stock: {}, date: {} value: {} W'.format(stock_name, trade_date, market_value/10000))
+            today_date = str(datetime.datetime.now().strftime('%Y-%m-%d'))
+            # if trade_date == "2022-03-01":
+            if trade_date == today_date:
+                print("today's date: ", today_date)
+                print('stock: {}, date: {} value: {} W'.format(stock_name, trade_date, market_value/10000))
+                
+            
+
 
 
 def getSP500list(p):
