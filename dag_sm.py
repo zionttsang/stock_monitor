@@ -21,8 +21,8 @@ def get_latest_stock_zjc_disclosure():
     }
     # config_path = './config/objects.xlsx'
 
-    df = pd.read_table("./stocks.txt",sep="," , dtype=str, header=None)
-    # df = pd.read_table("/opt/airflow/dags/projects/stock_monitor/stocks.txt",sep=",",dtype=str)
+    # df = pd.read_table("./stocks.txt",sep="," , dtype=str, header=None)
+    df = pd.read_table("/opt/airflow/dags/projects/stock_monitor/stocks.txt",sep="," , dtype=str, header=None)
     print('df:\n', df)
     
     for stock in df.itertuples():
@@ -32,8 +32,8 @@ def get_latest_stock_zjc_disclosure():
         url_head = 'http://www.cninfo.com.cn/data20/tradeInformation/getExecutivesIncDecDetail?scode='
         res = requests.get(url_head+stock_code, headers)
         time.sleep(1)
+        print("status code: ",res.status_code)
         text = res.text
-        # print(text)
         new_text = json.loads(text)
         for record in new_text['data']['records']:
             stock_name = record['SECNAME']
@@ -62,7 +62,7 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
 }
 
-dag = DAG('sm', 'twitter_dag_v1',
+dag = DAG('sm', 'stock_monitor_v1',
     # start_date=datetime(2018, 10, 1),
     schedule_interval="@daily",
     default_args=default_args, catchup=False
@@ -80,4 +80,4 @@ t2 = PythonOperator(task_id="monitor_task",
 # t1>>t2
 # t1>>[t2,t3]>>t4
 
-get_latest_stock_zjc_disclosure()
+# get_latest_stock_zjc_disclosure()
