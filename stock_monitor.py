@@ -5,9 +5,6 @@ import datetime
 import requests
 import pandas as pd
 
-
-
-
 def get_latest_stock_zjc_disclosure(headers, config_excel:str):
     df = pd.read_excel(config_excel,sheet_name='stocks',dtype=str)
     print('df:\n', df)
