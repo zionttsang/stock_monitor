@@ -2,7 +2,7 @@ from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1
 
 import os
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="schwarzen221@gmail.com"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="./free-trail-784533-c826d36fc23f.json"
 import sm
 import datetime
 
