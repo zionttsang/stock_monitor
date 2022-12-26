@@ -50,7 +50,7 @@ def get_latest_stock_zjc_disclosure():
 
         # get stock detail for msg.
         for record in new_text['data']['records']:
-            print(f"{stock_code} does have data.")
+            #print(f"{stock_code} does have data.")
             stock_name = record['SECNAME']
             trade_date = record['DECLAREDATE']
             market_volume = record['F006N']
