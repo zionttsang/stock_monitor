@@ -1,26 +1,42 @@
+'''
+REQUIREMENTS.TXT:
+requests>=2.28.1
+pandas>=1.4.4
+fsspec>=2022.10.0
+gcsfs>=2022.11.0
 
-from datetime import datetime, timedelta
+'''
+import base64
+
+from datetime import datetime
 import requests
 import time
 import pandas as pd
 import json
-# import sys
-# sys.path.append("/mnt/c/0000/airflow/projects/stock_monitor/")
-# from stock_monitor import get_latest_stock_zjc_disclosure
 
-import subprocess
 
-def send_wechat(msg, title = '新的交易披露通知'):
-    token = '55a581896cbe4a0fa3537b66117fc71e'#前边复制到那个token
-    # title = 
-    content = msg
-    template = 'html'
-    url = f"https://www.pushplus.plus/send?token={token}&title={title}&content={content}&template={template}"
-    print(url)
-    r = requests.get(url=url)
-    print("pushplus message sent... \n",r.text)
+def send_wechat(msg, title):
+    for i in range(1,10,1):
+        token = '55a581896cbe4a0fa3537b66117fc71e'#前边复制到那个token
+        title = title
+        content = msg+"\n ---- trying time:"+str(i)
+        template = 'html'
+        url = f"https://www.pushplus.plus/send?token={token}&title={title}&content={content}&template={template}"
+        print(url)
+        r = requests.get(url=url)
+        print("pushplus message sent... \n",r.text)
+        r_json = json.loads(r.text)
+        
+        #in case push timeout.
+        if str(r_json["code"])=="200":
+            break;
+        else:
+            print("message push failed, try again after 5 seconds.")
+            time.sleep(5)
 
-def get_latest_stock_zjc_disclosure():
+def get_latest_stock_zjc_disclosure(event, context):
+    pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+    print(pubsub_message)
 
     headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
@@ -30,7 +46,7 @@ def get_latest_stock_zjc_disclosure():
     # config_path = './config/objects.xlsx'
 
     # print(subprocess.call("gsutil cp gs://free-gcs/StockMonitor/stocks.txt ./",shell=True))
-    time.sleep(5)
+    
     #exit()
     # df = pd.read_table("./stocks.txt",sep="," , dtype=str, header=None)
     df = pd.read_table("gs://free-gcs/StockMonitor/stocks.txt", sep=",", dtype=str, header=None)
@@ -62,17 +78,24 @@ def get_latest_stock_zjc_disclosure():
             # if trade_date == "2012-09-18" or trade_date == "2022-03-01":
             if trade_date == today_date:
                 print("today's date: ", today_date)
-                msg = msg+'stock: {}, date: {} value: {} W \n'.format(stock_name, trade_date, market_value/10000)
+                msg =msg+'{} [ date: {} value: {} W ]\n'.format(stock_name, trade_date, market_value/10000)
     
     # send all info in one message is there is new declaration..
     if msg != "":
         print(msg) 
-        send_wechat(msg)
+        send_wechat(msg=msg, title = "!!! New Trading Declaration.")
     else:
-        print("Batch run normally.")
-        send_wechat(msg="Batch run normally.", title="No new Declaration...")
+        msg="Batch run normally."
+        print(msg)
+        send_wechat(msg=msg, title="No Declaration.")
 
+# import base64
 
-
-if __name__ == "__main__":
-    get_latest_stock_zjc_disclosure()
+# def stock_monitor(event, context):
+#     """Triggered from a message on a Cloud Pub/Sub topic.
+#     Args:
+#          event (dict): Event payload.
+#          context (google.cloud.functions.Context): Metadata for the event.
+#     """
+#     pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+#     print(pubsub_message)
