@@ -4,6 +4,7 @@ requests>=2.28.1
 pandas>=1.4.4
 fsspec>=2022.10.0
 gcsfs>=2022.11.0
+pyTelegramBotAPI>=4.10.0
 
 '''
 import base64
@@ -13,7 +14,13 @@ import requests
 import time
 import pandas as pd
 import json
+import os
 
+import telebot
+
+BotToken = '5799454184:AAGAef0Sa_gq-mx1NBGHjWVVjAaS9R2NnCI'
+ChatID = '6298839403'
+## =====================
 
 def send_wechat(msg, title):
     for i in range(1,10,1):
@@ -34,16 +41,27 @@ def send_wechat(msg, title):
             print("message push failed, try again after 5 seconds.")
             time.sleep(5)
 
+def send_teleBot(msg=""):  
+    BotToken = os.environ.get('BotToken')
+    ChatID = os.environ.get('ChatID')
+    bot = telebot.TeleBot(BotToken)
+    bot.send_message(chat_id=ChatID, text=msg)
+
+
 def get_latest_stock_zjc_disclosure(event="", context=""):
     # pubsub_message = base64.b64decode(event['data']).decode('utf-8')
     # print(pubsub_message)
 
     print("Inside of get data function...")
 
+    # headers = {
+    # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+    #               'AppleWebKit/537.36 (KHTML, like Gecko) '
+    #               'Chrome/67.0.3396.79 Safari/537.36'
+    # }
+
     headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                  'AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/67.0.3396.79 Safari/537.36'
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
     }
 
     ## hard code for stock to invoid gs bucket cost.
@@ -113,11 +131,13 @@ def get_latest_stock_zjc_disclosure(event="", context=""):
     # send all info in one message is there is new declaration..
     if msg != "":
         print(msg) 
-        send_wechat(msg=msg, title = "!!! New Trading Declaration.")
+        send_teleBot(msg)
+        # send_wechat(msg=msg, title = "!!! New Trading Declaration.")
     else:
         msg="Batch run normally."
         print(msg)
-        send_wechat(msg=msg, title="No Declaration.")
+        send_teleBot(msg)
+        # send_wechat(msg=msg, title="No Declaration.")
 
 if __name__ == "__main__":
     get_latest_stock_zjc_disclosure()
