@@ -18,8 +18,6 @@ import os
 
 import telebot
 
-BotToken = '5799454184:AAGAef0Sa_gq-mx1NBGHjWVVjAaS9R2NnCI'
-ChatID = '6298839403'
 ## =====================
 
 def send_wechat(msg, title):
