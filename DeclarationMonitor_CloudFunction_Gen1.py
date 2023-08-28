@@ -20,24 +20,24 @@ import telebot
 
 ## =====================
 
-def send_wechat(msg, title):
-    for i in range(1,10,1):
-        token = '55a581896cbe4a0fa3537b66117fc71e'#前边复制到那个token
-        title = title
-        content = msg+"\n ---- trying time:"+str(i)
-        template = 'html'
-        url = f"https://www.pushplus.plus/send?token={token}&title={title}&content={content}&template={template}"
-        print(url)
-        r = requests.get(url=url)
-        print("pushplus message sent... \n",r.text)
-        r_json = json.loads(r.text)
+# def send_wechat(msg, title):
+#     for i in range(1,10,1):
+#         token = '55a581896cbe4a0fa3537b66117fc71e'#test token
+#         title = title
+#         content = msg+"\n ---- trying time:"+str(i)
+#         template = 'html'
+#         url = f"https://www.pushplus.plus/send?token={token}&title={title}&content={content}&template={template}"
+#         print(url)
+#         r = requests.get(url=url)
+#         print("pushplus message sent... \n",r.text)
+#         r_json = json.loads(r.text)
         
-        #in case push timeout.
-        if str(r_json["code"])=="200":
-            break;
-        else:
-            print("message push failed, try again after 5 seconds.")
-            time.sleep(5)
+#         #in case push timeout.
+#         if str(r_json["code"])=="200":
+#             break;
+#         else:
+#             print("message push failed, try again after 5 seconds.")
+#             time.sleep(5)
 
 def send_teleBot(msg=""):  
     BotToken = os.environ.get('BotToken')
