@@ -3,7 +3,7 @@ from google.cloud import pubsub_v1
 
 import os
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="./free-trail-784533-c826d36fc23f.json"
-import DeclarationMonitor_CloudFunction_Gen1 as sm
+import stock_monitor.main as sm
 import datetime
 
 # TODO(developer)

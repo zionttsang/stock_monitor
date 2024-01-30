@@ -9,6 +9,9 @@ pyTelegramBotAPI>=4.10.0
 '''
 import base64
 
+from cloudevents.http import CloudEvent
+import functions_framework
+
 from datetime import datetime
 import requests
 import time
@@ -18,26 +21,6 @@ import os
 
 import telebot
 
-## =====================
-
-# def send_wechat(msg, title):
-#     for i in range(1,10,1):
-#         token = '55a581896cbe4a0fa3537b66117fc71e'#test token
-#         title = title
-#         content = msg+"\n ---- trying time:"+str(i)
-#         template = 'html'
-#         url = f"https://www.pushplus.plus/send?token={token}&title={title}&content={content}&template={template}"
-#         print(url)
-#         r = requests.get(url=url)
-#         print("pushplus message sent... \n",r.text)
-#         r_json = json.loads(r.text)
-        
-#         #in case push timeout.
-#         if str(r_json["code"])=="200":
-#             break;
-#         else:
-#             print("message push failed, try again after 5 seconds.")
-#             time.sleep(5)
 
 def send_teleBot(msg=""):  
     BotToken = os.environ.get('BotToken')
@@ -45,12 +28,16 @@ def send_teleBot(msg=""):
     bot = telebot.TeleBot(BotToken)
     bot.send_message(chat_id=ChatID, text=msg)
 
+    
+# Triggered from a message on a Cloud Pub/Sub topic.
+@functions_framework.cloud_event
+def get_latest_stock_zjc_disclosure(cloud_event: CloudEvent) -> None:
+    # Print out the data from Pub/Sub, to prove that it worked
+    print(
+        "Hello, " + base64.b64decode(cloud_event.data["message"]["data"]).decode() + "!"
+    )
 
-def get_latest_stock_zjc_disclosure(event="", context=""):
-    # pubsub_message = base64.b64decode(event['data']).decode('utf-8')
-    # print(pubsub_message)
-
-    print("Inside of get data function...")
+    print("Inside of get cloud function...")
 
     # headers = {
     # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
@@ -62,7 +49,7 @@ def get_latest_stock_zjc_disclosure(event="", context=""):
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
     }
 
-    ## hard code for stock to invoid gs bucket cost.
+    ## hard code for stock to avoid gs bucket cost.
     data = {'stock': ['伟明环保', '三七互娱', '汤臣倍健', '浙江鼎力'],
             'stock_code': ['603568', '002555', '300146', '603338']
         }
